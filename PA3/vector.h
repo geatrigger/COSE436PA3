@@ -1,0 +1,266 @@
+
+
+#pragma once
+
+#define _USE_MATH_DEFINES
+
+#include <stdio.h>
+#include <math.h>
+#include <vector>
+#include <algorithm>
+#include <stdlib.h>
+#include <iostream>
+
+
+class vec2
+{
+public:
+	double x;
+	double y;
+public:
+	vec2(void)
+	{
+		x = y = 0.0;
+	}
+	vec2(double x0, double y0)
+	{
+		x = x0;
+		y = y0;
+	}
+	~vec2(void)
+	{
+	}
+public:
+ 
+	double	getX(void) { return x; }
+	double	getY(void) { return y; }
+public:
+	void operator=(vec2 &v)
+	{
+		x = v.x;
+		y = v.y;
+	}
+	vec2 operator+(vec2 v)
+	{
+		vec2 res;
+		res.x = x + v.x;
+		res.y = y + v.y;
+		return res;
+	}
+	vec2 operator-(vec2 v)
+	{
+		vec2 res;
+		res.x = x - v.x;
+		res.y = y - v.y;
+		return res;
+	}
+	vec2 operator/(double v)
+	{
+		vec2 res;
+		res.x = x / v;
+		res.y = y / v;
+		return res;
+	}
+	vec2 operator*(double v)
+	{
+		vec2 res;
+		res.x = x*v;
+		res.y = y*v;
+		return res;
+	}
+	vec2 &operator+=(vec2 v)
+	{
+		x += v.x;
+		y += v.y;
+		return *this;
+	}
+	vec2 &operator-=(vec2 v)
+	{
+		x -= v.x;
+		y -= v.y;
+		return *this;
+	}
+
+	double length()
+	{
+		return sqrt(x*x + y*y);
+	}
+	double dist()
+	{
+		return sqrt(x*x + y*y);
+	}
+	double dist(vec2 p)
+	{
+		return sqrt((x - p.x)*(x - p.x) + (y - p.y)*(y - p.y));
+	}
+};
+
+class vec3
+{
+
+public:
+	vec3()
+	{
+		x = y = z = 0.0f;
+
+	}
+	vec3(double x, double y, double z){
+		this->x = x;
+		this->y = y;
+		this->z = z;
+	}
+	~vec3(){}
+public:
+
+
+	double		x;
+	double		y;
+	double		z;
+	double	getX(void) { return x; }
+	double	getY(void) { return y; }
+	double	getZ(void) { return z; }
+	vec3 operator+(vec3 v)
+	{
+		vec3 result = (*this);
+		result.x += v.x;
+		result.y += v.y;
+		result.z += v.z;
+		return result;
+	}
+	vec3 operator-(vec3 v)
+	{
+		vec3 result = (*this);
+		result.x -= v.x;
+		result.y -= v.y;
+		result.z -= v.z;
+		return result;
+	}
+
+	vec3 &operator+=(vec3 v)
+	{
+		x += v.x;
+		y += v.y;
+		z += v.z;
+		return *this;
+	}
+	vec3 &operator-=(vec3 v)
+	{
+		x -= v.x;
+		y -= v.y;
+		z -= v.z;
+		return *this;
+	}
+	vec3 operator*(double val)
+	{
+		vec3 result = (*this);
+		result.x *= val;
+		result.y *= val;
+		result.z *= val;
+		return result;
+	}
+
+
+	vec3 operator/(double val)
+	{
+		vec3 result = (*this);
+		result.x /= val;
+		result.y /= val;
+		result.z /= val;
+		return result;
+	}
+
+	friend vec3 operator*(double val, vec3 v)
+	{
+		v.x *= val;
+		v.y *= val;
+		v.z *= val;
+
+		return v;
+	}
+	friend vec3 operator/(double val, vec3 v)
+	{
+		v.x /= val;
+		v.y /= val;
+		v.z /= val;
+
+		return v;
+	}
+
+	vec3 Cross(vec3 v)
+	{
+		vec3 result;
+		result.x = y*v.z - z*v.y;
+		result.y = z*v.x - x*v.z;
+		result.z = x*v.y - y*v.x;
+		return result;
+	}
+	double length()
+	{
+		return sqrt(x*x + y*y + z*z);
+	}
+	// not to use because I WANT TO RETURN vec3
+	void Normalize()
+	{
+		double w = length();
+		if (w < 0.00001) return;
+		x /= w;
+		y /= w;
+		z /= w;
+	}
+	vec3 normalize()
+	{
+		vec3 result;
+		double w = length();
+		if (w < 0.00001) return vec3(0, 0, 0);
+		result.x = x/w;
+		result.y = y/w;
+		result.z = z/w;
+		return result;
+	}
+	double  dot(vec3 v)
+	{
+		return (x*v.x + y*v.y + z*v.z);
+	}
+	double dist(vec3 v)
+	{
+		return sqrt(pow(x - v.x, 2) + pow(y - v.y, 2) + pow(z - v.z, 2));
+	}
+	bool operator ==(vec3 &v)
+	{
+		return x == v.x && y == v.y&&z == v.z;
+	}
+	bool operator!=(vec3 &v)
+	{
+		return x != v.x || y != v.y || z != v.z;
+	}
+	void setZeroVector(){
+		x = y = z = 0.0f;
+	}
+	//xyz는 0(x), 1(y), 2(z)중 하나의 값, angle은 360도 표기
+	vec3 rotate(int xyz, float angle)
+	{
+		//angle = angle / M_PI * 180;
+		angle = angle / 180 * M_PI;
+		//angle = -angle;
+		vec3 result = vec3(0, 0, 0);
+		if (xyz == 0)
+		{
+			result.y = y * cos(angle) - z * sin(angle);
+			result.z = y * sin(angle) + z * cos(angle);
+			result.x = x;
+		}
+		else if (xyz == 1)
+		{
+			result.z = z * cos(angle) - x * sin(angle);
+			result.x = z * sin(angle) + x * cos(angle);
+			result.y = y;
+		}
+		else if (xyz == 2)
+		{
+			result.x = x * cos(angle) - y * sin(angle);
+			result.y = x * sin(angle) + y * cos(angle);
+			result.z = z;
+		}
+		return result;
+	}
+};
