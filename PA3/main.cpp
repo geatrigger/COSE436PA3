@@ -56,11 +56,11 @@ int main(int argc, char ** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glutInitWindowPosition(400, 100);
 	glutInitWindowSize(1024, 800);
 	glutCreateWindow("Cloth Spring Simulation ");
+	glEnable(GL_DEPTH_TEST);
 
 	Initialize();
 	glutTimerFunc(10, Update, 0);

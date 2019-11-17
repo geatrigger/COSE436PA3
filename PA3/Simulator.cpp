@@ -15,8 +15,7 @@ Simulator::~Simulator()
 
 void Simulator::Initialize()
 {
-	//timsStep = 0.01;
-	timsStep = 0.015;
+	timsStep = 0.01;
 	ground =vec3(0.0,-15,0.0);
 	cloth = new mass_cloth();
 
