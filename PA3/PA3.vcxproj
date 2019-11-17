@@ -28,6 +28,8 @@
   <ItemGroup>
     <ClInclude Include="cloth.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="particle.h" />
+    <ClInclude Include="particle_system.h" />
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="spring.h" />

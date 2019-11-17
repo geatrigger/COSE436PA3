@@ -2,6 +2,8 @@
 #include <GL/glut.h>
 #include "cloth.h"
 #include "sphere.h"
+#include "particle.h"
+#include "particle_system.h"
 
 void Node::draw()
 {
@@ -97,4 +99,49 @@ void mass_sphere::draw()
 	default:
 		break;
 	}
+}
+
+
+void particle::draw()
+{
+	switch (drawMode)
+	{
+	case DRAW_MASS_NODES:
+		glDisable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
+		break;
+	case DRAW_SPRINGS:
+		glDisable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
+		break;
+	case DRAW_FACES:
+		//Basic Implements 3-3. Draw Call for Cloth
+		//Additional Implements 4-3. Texture Coordinate Mapping
+		break;
+	default:
+		break;
+	}
+	glPopMatrix();
+}
+
+void particle_system::draw()
+{
+	switch (drawMode)
+	{
+	case DRAW_MASS_NODES:
+		glDisable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
+		break;
+	case DRAW_SPRINGS:
+		glDisable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
+		break;
+	case DRAW_FACES:
+		//Basic Implements 3-3. Draw Call for Cloth
+		//Additional Implements 4-3. Texture Coordinate Mapping
+		break;
+	default:
+		break;
+	}
+	glPopMatrix();
 }
