@@ -105,7 +105,7 @@ void Particle::draw()
 {
 	glDisable(GL_LIGHTING);
 	glColor3f(0.5f, 0.5f, 1.0f);
-	glPointSize(5.0f);
+	glPointSize(25.0f);
 	glEnable(GL_POINT_SMOOTH);
 	glBegin(GL_POINTS);
 	glVertex3f(getPosX(), getPosY(), getPosZ());

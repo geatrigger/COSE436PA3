@@ -12,7 +12,7 @@ SPH::SPH(int numparticle)
 	MaxParticle = numparticle;
 	index = 0;
 	//rest_density = 4.2;
-	rest_density = 1.0;
+	rest_density = 2.0;
 	k = 50.0; //gas
 	mu = 0.8; //viscosity
 	h = 1.0; //kernel radius
