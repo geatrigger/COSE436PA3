@@ -16,11 +16,11 @@ Simulator::~Simulator()
 void Simulator::Initialize()
 {
 	timsStep = 0.01;
-	ground =vec3(0.0,-15,0.0);
+	ground =vec3(0.0,-10.0,0.0);
 	cloth = new mass_cloth();
 
-	cloth->dx = 1;
-	cloth->dy = 1;
+	cloth->dx = 0.3;
+	cloth->dy = 0.3;
 	cloth->dz = 1;
 	cloth->size_x = 50;
 	cloth->size_y = 50;
@@ -35,24 +35,38 @@ void Simulator::Initialize()
 	//initial force
 	cloth->add_force(vec3(30, 0, 0));
 
-	sphere = new mass_sphere();
+	//sphere = new mass_sphere();
 
-	sphere->origin = vec3(0, 0, 0);
-	sphere->size = 10;
-	sphere->drawMode = 2;
+	//sphere->origin = vec3(0, 0, 0);
+	//sphere->size = 10;
+	//sphere->drawMode = 2;
 
-	sphere->init();
+	//sphere->init();
+	mySPH = new SPH(3000);	// the number of particles
+	mySPH->iteration_n = 6;
+	mySPH->init();
 }
 
 void Simulator::Update()
 {
-	vec3 gravity(0.0, -9.8 / cloth->iteration_n, 0.0);
+	vec3 gravity_c(0.0, -9.8 / cloth->iteration_n, 0.0);
+	vec3 gravity_s(0.0, -9.8 / mySPH->iteration_n, 0.0);
 		 
+	for (int iter = 0; iter < mySPH->iteration_n; iter++)
+	{
+		mySPH->update(timsStep, gravity_s);
+		/*
+		mySPH->pouring(timsStep);
+		mySPH->makeHashTable();
+		mySPH->computeDensity();
+		mySPH->computeForce();
+		mySPH->integrate(timsStep, gravity);*/
+	}
 	for (int iter = 0; iter < cloth->iteration_n; iter++)
 	{
-		cloth->compute_force(timsStep, gravity, external_force);
-		cloth->integrate(timsStep, gravity, external_force, numerical_method);
-		cloth->collision_response(ground, sphere);
+		cloth->compute_force(timsStep, gravity_c, external_force);
+		cloth->integrate(timsStep, gravity_c, external_force, numerical_method);
+		cloth->collision_response(ground);
 	}
 
 	cloth->computeNormal();
@@ -62,8 +76,8 @@ void Simulator::Update()
 void Simulator::Render()
 {
 	Lighting();
-    DrawGround();
-	sphere->draw();
+  DrawGround();
+	mySPH->draw();
  	cloth->draw();
 }
 

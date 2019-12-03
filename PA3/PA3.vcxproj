@@ -23,14 +23,15 @@
     <ClCompile Include="Draw.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Simulator.cpp" />
+    <ClCompile Include="SPH.cpp" />
     <ClCompile Include="Viewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cloth.h" />
     <ClInclude Include="Node.h" />
-    <ClInclude Include="particle.h" />
-    <ClInclude Include="particle_system.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="Simulator.h" />
+    <ClInclude Include="SPH.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="spring.h" />
     <ClInclude Include="vector.h" />
@@ -142,6 +143,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

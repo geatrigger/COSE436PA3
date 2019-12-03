@@ -96,7 +96,7 @@ public:
 			{
 				for (int k = 0; k < size_z; k++)
 				{
-					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy, (j - size_y / 2.0) * dy));
+					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 7, (j - size_y / 2.0) * dy));
 					if (j == size_y - 1 && (i == 0 || i == size_x - 1))
 						xp->isFixed = true;
 					else
@@ -386,12 +386,10 @@ public:
 		}
 	}
 	
-	void collision_response(vec3 ground, mass_sphere *sphere)
+	void collision_response(vec3 ground)
 	{
 		vec3 p, n;
 		double r;
-		vec3 sphere_origin = sphere->origin;
-		double sphere_length = sphere->size;
 		for (int i = 0; i < nodes.size(); i++)
 		{
 			vec3 x = nodes[i]->position;
@@ -406,20 +404,6 @@ public:
 				nodes[i]->velocity = v;
 				nodes[i]->position += n * r;
 				continue;
-			}
-			//sphere
-			n = (x - sphere_origin).normalize();
-			p = sphere_origin + sphere_length * n;
-			r = 0.1;
-			if (n.length() <= sphere_length)
-			{
-				if ((x - p).dot(n) < r && n.dot(v) < 0)
-				{
-					v = v - (2 * n.dot(v) * n);
-					nodes[i]->velocity = v;
-					nodes[i]->position = p + n*r;
-					continue;
-				}
 			}
 		}
 

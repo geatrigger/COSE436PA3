@@ -7,7 +7,8 @@ using namespace std;
 
 Viewer::Viewer(void)
 {
-	m_Zoom = 120;
+	//m_Zoom = 120;
+	m_Zoom = 30;
 	for (int i = 0; i < 2; i++)
 	{
 		m_Rotate[i] = 0.0f;
@@ -15,7 +16,7 @@ Viewer::Viewer(void)
 		m_Mouse_Coord[i] = 0.0f;
 	}
 	m_Mouse_Event[0] = m_Mouse_Event[1] = m_Mouse_Event[2] = 0;
-	m_start = true;
+	m_start = false;
 }
 
 Viewer::~Viewer(void)
@@ -27,6 +28,14 @@ void Viewer::Initialize(void)
 	S_Simulator.Initialize();
 	S_Simulator.Lighting();
 	//Additional Implements 4-1. OpenGL Initialization for Texture Mapping
+}
+
+void Viewer::Update()
+{
+	if (m_start == true)
+	{
+		S_Simulator.Update();
+	}
 }
 
 void Viewer::Render(void)
@@ -168,12 +177,4 @@ void Viewer::Keyboard(unsigned char key, int x, int y)
 		break;
 	}
 	glutPostRedisplay();
-}
-
-void Viewer::Update()
-{
-	if (m_start == true)
-	{
-		S_Simulator.Update();
-	}
 }

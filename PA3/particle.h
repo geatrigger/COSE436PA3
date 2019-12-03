@@ -1,125 +1,88 @@
-﻿#pragma once
-
-#define MIN_INIT_VELOCITY 10
-#define MAX_INIT_VELOCITY 100
-#define LENGTH 30
-
-#include "spring.h"
-#include "Node.h"
-#include "sphere.h"
-#include <stdio.h>
+#pragma once
 #include <math.h>
 #include <vector>
 #include <algorithm>
-#include <GL/glut.h>
-
-
-class particle
+#include "vector.h"
+class Particle
 {
 public:
-
-	double  mass;
-	vec3    velocity, position;
-	int			iteration_n;
-	int			drawMode;
-
-
-	particle()
-	{
-		mass = 1;
-		velocity = vec3(0, MIN_INIT_VELOCITY - rand() % (MAX_INIT_VELOCITY - MIN_INIT_VELOCITY), 0);
-		position = vec3((1 - 2 * rand_float()) * (LENGTH - 10), (1 - rand_float()) * LENGTH - 10, 0);
-	}
-	~particle()
-	{
-	}
-	enum DrawModeEnum {
-		DRAW_MASS_NODES,
-		DRAW_SPRINGS,
-		DRAW_FACES
-	};
-
-	float rand_float()
-	{
-		float value = rand() / float(RAND_MAX);
-		return value;
-	}
+	double	mass;
+	vec3	position;
+	vec3	velocity;
+	vec3	acceleration;
+	double	density;
+	int		idx;
+	vec3	fpressure;
+	vec3	fviscosity;
+	double  restitution;
 public:
-	void init()
+	Particle(void)
 	{
-		//Basic Implements 1. Init Nodes and Shear and Structural Springs
-		//Additional Implements 1. Init Bending Spring
-		/*
-			Node *xp = new Node(vec3(x, y, z));
-
-			mass_spring *sp = new mass_spring(p[Node_Index_A], p[Node_Index_B]);
-			sp->spring_coef = spring_Type_coef;
-			spring.push_back(sp);
-		*/
-		//Basic Implements 3-1. Generate Faces
-		/*
-			faces.push_back(p[Node_Index_A]);
-			faces.push_back(p[Node_Index_C]);
-			faces.push_back(p[Node_Index_B]);
-		*/
-		//Additional Implements 4-2. Initialize Texture Coordinates	
+	}
+	Particle(double _x, double _y, double _z)
+	{
+		position = vec3(_x, _y, _z);
+		velocity = vec3(0.0, 0.0, 0.0);
+		mass = 1.0;
+		restitution = 0.5;
 	}
 
-	void computeNormal()
+	Particle(double _x, double _y, double _z, int _idx) : position(_x, _y, _z), velocity(0.0, 0.0, 0.0), acceleration(0.0, 0.0, 0.0), mass(1.0)
 	{
-		std::vector<vec3> face_normals;
-
-		//Basic Implements 3-2. Compute Vertex Normal
-		/*
-			for(each face)
-			{
-				compute face normal
-			}
-			for(each node)
-			{
-				������ face�� ��� normal
-			}
-		*/
+		fpressure = vec3(0.0, 0.0, 0.0);
+		fviscosity = vec3(0.0, 0.0, 0.0);
+		density = 0.0;
+		idx = _idx;
+		restitution = 0.5;
 	}
-
-	void add_force(vec3 additional_force)
+	~Particle(void)
 	{
 	}
 
-	void compute_force(double dt, vec3 gravity, vec3 external_force)
-	{
-	}
+	double	getPosX(void) { return position.getX(); }
+	double	getPosY(void) { return position.getY(); }
+	double	getPosZ(void) { return position.getZ(); }
 
-
-	void integrate(double dt, vec3 gravity, vec3 external_force, int method)
+	void integrate(double dt, vec3 gravity)
 	{
-		switch (method)
+		vec3 fgrav = gravity * mass;
+
+		// Update velocity and position
+		acceleration = (fpressure + fviscosity) / density + fgrav;
+		velocity = velocity + acceleration * dt;
+		position = position + velocity * dt;
+
+		// Boundary condition
+		if (position.x < -10.0 && velocity.x < 0.0)
 		{
-		case 0:
-			//printf("euler\n");
-			break;
-		case 1:
-			//RK2 Method
-			compute_force(dt, gravity, external_force);
-			//printf("rk2\n");
-			break;
-		default:
-			break;
+			velocity.x *= -restitution;
+			position.x = -10.0+0.1;
 		}
-	}
-
-	void collision_response(vec3 ground, mass_sphere* sphere)
-	{
-		//Basic Implements 4. Collision Check with ground
-		//Additional Implements 2. Collision Check with Sphere
-		//Additional Implements 3. Collision Check with Mesh Object
-		/*
-			if(Collision Detection)
-			{
-				Collision Response
-			}
-		*/
-
+		if (position.x > 10.0 && velocity.x > 0.0)
+		{
+			velocity.x *= -restitution;
+			position.x = 10.0-0.1;
+		}
+		if (position.y < -10.0 && velocity.y < 0.0)
+		{
+			velocity.y *= -restitution;
+			position.y = -10.0+0.1;
+		}
+		if (position.y > 10.0 && velocity.y > 0.0)
+		{
+			velocity.y *= -restitution;
+			position.y = 10.0-0.1;
+		}
+		if (position.z < -10.0 && velocity.z < 0.0)
+		{
+			velocity.z *= -restitution;
+			position.z = -10.0 + 0.1;
+		}
+		if (position.z > 10.0 && velocity.z > 0.0)
+		{
+			velocity.z *= -restitution;
+			position.z = 10.0 - 0.1;
+		}
 	}
 
 	void draw();

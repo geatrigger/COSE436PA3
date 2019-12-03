@@ -10,6 +10,7 @@
 
 #include "cloth.h"
 #include "sphere.h"
+#include "SPH.h"
  
 
 using namespace std;
@@ -31,8 +32,9 @@ public:
 public:
 	mass_cloth			*cloth;
 	vec3				ground;
-	mass_sphere *sphere;
-	float timsStep;
+	//mass_sphere *sphere;
+	SPH* mySPH;
+	double timsStep;
 	int					  numerical_method;
 	vec3          external_force;
 };
