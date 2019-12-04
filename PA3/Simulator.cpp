@@ -28,7 +28,7 @@ void Simulator::Initialize()
 	cloth->structural_coef = 1500;
 	cloth->shear_coef = 50;
 	cloth->bending_coef = 1000;
-	cloth->iteration_n = 20;
+	cloth->iteration_n = 10;
 	cloth->drawMode = 2;
 	
 	cloth->init();
@@ -43,7 +43,7 @@ void Simulator::Initialize()
 
 	//sphere->init();
 	mySPH = new SPH(3000);	// the number of particles
-	mySPH->iteration_n = 6;
+	mySPH->iteration_n = 10;
 	mySPH->init();
 }
 
@@ -54,19 +54,21 @@ void Simulator::Update()
 		 
 	for (int iter = 0; iter < mySPH->iteration_n; iter++)
 	{
-		mySPH->update(timsStep, gravity_s);
-		/*
+		//mySPH->update(timsStep, gravity_s);
+		
 		mySPH->pouring(timsStep);
-		mySPH->makeHashTable();
+		//printf("cloth particle : %d\n", cloth->particles.size());
+		mySPH->makeHashTable(cloth->particles);
 		mySPH->computeDensity();
 		mySPH->computeForce();
-		mySPH->integrate(timsStep, gravity);*/
+		mySPH->integrate(timsStep, gravity_s);
 	}
 	for (int iter = 0; iter < cloth->iteration_n; iter++)
 	{
 		cloth->compute_force(timsStep, gravity_c, external_force);
 		cloth->integrate(timsStep, gravity_c, external_force, numerical_method);
 		cloth->collision_response(ground);
+		cloth->set_particle_position();
 	}
 
 	cloth->computeNormal();

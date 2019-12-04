@@ -6,6 +6,7 @@
 #include "spring.h"
 #include "Node.h"
 #include "sphere.h"
+#include "Particle.h"
 #include <stdio.h>
 #include <math.h>
 #include <vector>
@@ -20,6 +21,7 @@ public:
 	std::vector<Node *> nodes;
 	std::vector<mass_spring *> spring;
 	std::vector<Node*> faces;
+	std::vector<Particle*> particles;
 
 	int			size_x, size_y, size_z;
 	double		dx, dy, dz;
@@ -96,8 +98,12 @@ public:
 			{
 				for (int k = 0; k < size_z; k++)
 				{
-					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 7, (j - size_y / 2.0) * dy));
-					if (j == size_y - 1 && (i == 0 || i == size_x - 1))
+					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 10, (j - size_y / 2.0) * dy));
+					Particle* pp = new Particle(xp->getPosX(), xp->getPosY(), xp->getPosZ(), -1);
+					//pp->mass = 0.5;
+					xp->pp = pp;
+					particles.push_back(pp);
+					if ((j == 0 || j == size_y - 1) && (i == 0 || i == size_x - 1))
 						xp->isFixed = true;
 					else
 						xp->isFixed = false;
@@ -356,6 +362,12 @@ public:
 		for (int i = 0; i < nodes.size(); i++)
 		{
 			nodes[i]->add_force(external_force);
+			//sph force
+			vec3 sph_force = nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity;
+			sph_force = sph_force/30;
+			//if(i == nodes.size() / 2)
+			//  printf("sph force : %lf, %lf, %lf\n", sph_force.getX(), sph_force.getY(), sph_force.getZ());
+			nodes[i]->add_force(sph_force);
 		}
 	}
 	
@@ -417,6 +429,15 @@ public:
 			}
 		*/
 
+	}
+
+	void set_particle_position()
+	{
+		for (int i = 0; i < nodes.size(); i++)
+		{
+			Particle* pp = nodes[i]->pp;
+			pp->position = vec3(nodes[i]->getPosX(), nodes[i]->getPosY(), nodes[i]->getPosZ());
+		}
 	}
 
 	void draw();

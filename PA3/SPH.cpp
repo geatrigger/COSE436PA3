@@ -77,8 +77,8 @@ void SPH::pouring(float dt)
 		return;
 
 	for (double z = -1.0; z < 0.0; z += 0.4) {
-		for (double y = -5.0; y < -4.0; y += 0.4) {
-			for (double x = -10.0; x < -10.0 + 2.0; x += 0.4) {
+		for (double y = 5.0; y < 6.0; y += 0.4) {
+			for (double x = -3.0; x < -3.0 + 2.0; x += 0.4) {
 				if (particles.size() < MaxParticle)
 				{
 					Particle* p = new Particle(x, y, z, index++);
@@ -93,15 +93,15 @@ void SPH::pouring(float dt)
 	pouring_time = 0.0f;
 	cout << "SPH" << particles.size() << " Paricles" << endl;
 }
-
-void SPH::update(float dt, vec3 gravity)
-{
-	pouring(dt);
-	makeHashTable();
-	computeDensity();
-	computeForce();
-	integrate(dt, gravity);
-}
+//
+//void SPH::update(float dt, vec3 gravity)
+//{
+//	pouring(dt);
+//	makeHashTable();
+//	computeDensity();
+//	computeForce();
+//	integrate(dt, gravity);
+//}
 
 void SPH::draw()
 {
@@ -197,16 +197,34 @@ void SPH::computeForce() // Compute Pressure and Viscosity
 					for (int j = 0; j < rjs.size(); j++)
 					{
 						Particle* pj = rjs[j];
+						//cloth particle끼리는 힘을 계산 안함
+						if (pi->idx < 0 && pj->idx < 0)
+							continue;
 						vec3 rij = pi->position - pj->position;
 						double q = rij.length() / h;
 						if (0.0 < q && q < 1.0)
 						{
-							pi->fpressure = pi->fpressure + pj->mass * (k * ((pi->density - rest_density) + (pj->density - rest_density))
-								/ (2.0 * pj->density)) * spikygradientKernel(rij, q);//compute with spikygradientKernel
-							pi->fviscosity = pi->fviscosity + pj->mass * ((pj->velocity - pi->velocity) / pj->density)
-								* viscositylaplacianKernel(rij, q);//compute with viscositylaplacianKernel
-							//printf("spiky : (%lf, %lf)\n", spikygradientKernel(rij, q).x, spikygradientKernel(rij, q).y);
-							//printf("pj->mass : %lf, k : %lf, pi->density : %lf, pj->density : %lf\n", pj->mass, k, pi->density, pj->density);
+							// cloth particle과 sph particle이 너무 가까이 있으면 힘을 약하게 받음
+							// sph particle 끼리 가까이 있으면 힘 받음
+							double q_min = 0.5;
+							if (pi->idx < 0 && pj->idx >= 0 && q > q_min ||
+								pi->idx >= 0 && pj->idx < 0 && q > q_min ||
+								pi->idx >= 0 && pj->idx >= 0)
+							{
+								pi->fpressure = pi->fpressure + pj->mass * (k * ((pi->density - rest_density) + (pj->density - rest_density))
+									/ (2.0 * pj->density)) * spikygradientKernel(rij, q);//compute with spikygradientKernel
+								pi->fviscosity = pi->fviscosity + pj->mass * ((pj->velocity - pi->velocity) / pj->density)
+									* viscositylaplacianKernel(rij, q);//compute with viscositylaplacianKernel
+								//printf("spiky : (%lf, %lf)\n", spikygradientKernel(rij, q).x, spikygradientKernel(rij, q).y);
+								//printf("pj->mass : %lf, k : %lf, pi->density : %lf, pj->density : %lf\n", pj->mass, k, pi->density, pj->density);
+							}
+							else
+							{
+								pi->fpressure = pi->fpressure + pj->mass * (k * ((pi->density - rest_density) + (pj->density - rest_density))
+									/ (2.0 * pj->density)) * spikygradientKernel(rij, q_min);//compute with spikygradientKernel
+								pi->fviscosity = pi->fviscosity + pj->mass * ((pj->velocity - pi->velocity) / pj->density)
+									* viscositylaplacianKernel(rij, q_min);//compute with viscositylaplacianKernel
+							}
 						}
 					}
 
@@ -230,7 +248,7 @@ void SPH::integrate(double dt, vec3 gravity)
 	}
 }
 
-void SPH::makeHashTable()
+void SPH::makeHashTable(vector<Particle*> cloth_particles)
 {
 #pragma omp parallel for collapse(3)
 	for (int p = 0; p < GRIDSIZE; p++)
@@ -264,6 +282,26 @@ void SPH::makeHashTable()
 		hashGrid[gridx][gridy][gridz].push_back(p);
 		//printf("gridx : %d, gridy : %d\n", gridx, gridy);
 	}
+	for (int i = 0; i < cloth_particles.size(); i++)
+	{
+		Particle* p = cloth_particles[i];
+		double x = (p->getPosX() + GRIDSIZE / 2);
+		double y = (p->getPosY() + GRIDSIZE / 2);
+		double z = (p->getPosZ() + GRIDSIZE / 2);
+		int gridx = (int)(x);
+		int gridy = (int)(y);
+		int gridz = (int)(z);
+
+		if (gridx < 0) gridx = 0;
+		if (gridx > GRIDSIZE - 1) gridx = GRIDSIZE - 1;
+		if (gridy < 0) gridy = 0;
+		if (gridy > GRIDSIZE - 1) gridy = GRIDSIZE - 1;
+		if (gridz < 0) gridz = 0;
+		if (gridz > GRIDSIZE - 1) gridz = GRIDSIZE - 1;
+
+		hashGrid[gridx][gridy][gridz].push_back(p);
+		//printf("gridx : %d, gridy : %d\n", gridx, gridy);
+	}
 }
 
 vector<Particle *> SPH::getNeighbor(int gridx, int gridy, int gridz, double radius, vector<Particle*> &mine)
@@ -282,7 +320,7 @@ vector<Particle *> SPH::getNeighbor(int gridx, int gridy, int gridz, double radi
 
 				for (int l = 0; l < hashGrid[i][j][k].size(); l++)
 				{
-					res.push_back(hashGrid[i][j][k][l]);
+			    res.push_back(hashGrid[i][j][k][l]);
 
 					if (i == gridx && j == gridy && k == gridz)
 						mine.push_back(hashGrid[i][j][k][l]);

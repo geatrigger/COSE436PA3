@@ -71,6 +71,8 @@ void mass_cloth::draw()
 			
 			glEnd();
 		}
+		for (int i = 0; i < nodes.size(); i++)
+			nodes[i]->pp->draw();
 		glDisable(GL_TEXTURE_2D);
 		//Basic Implements 3-3. Draw Call for Cloth
 		//Additional Implements 4-3. Texture Coordinate Mapping
@@ -103,9 +105,20 @@ void mass_sphere::draw()
 
 void Particle::draw()
 {
+	if (idx < 0)
+	{
+		glDisable(GL_LIGHTING);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		glVertex3f(getPosX(), getPosY(), getPosZ());
+		glEnd();
+		glEnable(GL_LIGHTING);
+		return;
+	}
 	glDisable(GL_LIGHTING);
 	glColor3f(0.5f, 0.5f, 1.0f);
-	glPointSize(25.0f);
+	glPointSize(15.0f);
 	glEnable(GL_POINT_SMOOTH);
 	glBegin(GL_POINTS);
 	glVertex3f(getPosX(), getPosY(), getPosZ());

@@ -45,6 +45,8 @@ public:
 
 	void integrate(double dt, vec3 gravity)
 	{
+		if (idx < 0)
+			return;
 		vec3 fgrav = gravity * mass;
 
 		// Update velocity and position

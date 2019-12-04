@@ -27,9 +27,9 @@ public:
 	void init();
 	void damBreaking();
 	void pouring(float dt);
-	void update(float dt, vec3 gravity);
+	//void update(float dt, vec3 gravity);
 	void draw();
-	void makeHashTable();
+	void makeHashTable(vector<Particle*> cloth_particles);
 	void computeDensity();
 	void computeForce();
 	void integrate(double dt, vec3 gravity);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include "vector.h"
+#include "Particle.h"
 
 class Node
 {
@@ -18,6 +19,7 @@ private:
 	vec3	acceleration_euler;
 public:
 	std::vector<int> connect_springs;
+	Particle* pp;
 
 	double	mass;
 	vec3	force;

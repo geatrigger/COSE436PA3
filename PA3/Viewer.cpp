@@ -116,7 +116,8 @@ void Viewer::Motion(int x, int y)
 			mouse_force = mouse_force.rotate(0, -m_Rotate[0]);
 			//printf("mouse_force : %f, %f, %f\n", mouse_force.x, mouse_force.y, mouse_force.z);
 			std::vector<Node*> n = S_Simulator.cloth->nodes;
-			S_Simulator.external_force = mouse_force;
+			double mfactor = 0.1;
+			S_Simulator.external_force = mouse_force * mfactor;
 			//Basic Implements 5. User Interaction
 		}
  	}
