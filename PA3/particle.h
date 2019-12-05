@@ -14,6 +14,7 @@ public:
 	int		idx;
 	vec3	fpressure;
 	vec3	fviscosity;
+	vec3	fclean; //cleaning force(È¸Àü·Â)
 	double  restitution;
 public:
 	Particle(void)
@@ -31,6 +32,7 @@ public:
 	{
 		fpressure = vec3(0.0, 0.0, 0.0);
 		fviscosity = vec3(0.0, 0.0, 0.0);
+		fclean = vec3(0.0, 0.0, 0.0);
 		density = 0.0;
 		idx = _idx;
 		restitution = 0.5;
@@ -50,7 +52,7 @@ public:
 		vec3 fgrav = gravity * mass;
 
 		// Update velocity and position
-		acceleration = (fpressure + fviscosity) / density + fgrav;
+		acceleration = (fpressure + fviscosity + fclean) / density + fgrav;
 		velocity = velocity + acceleration * dt;
 		position = position + velocity * dt;
 

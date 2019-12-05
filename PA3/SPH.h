@@ -31,7 +31,7 @@ public:
 	void draw();
 	void makeHashTable(vector<Particle*> cloth_particles);
 	void computeDensity();
-	void computeForce();
+	void computeForce(bool is_cleaning);
 	void integrate(double dt, vec3 gravity);
 
 private:	//kernel functions for SPH

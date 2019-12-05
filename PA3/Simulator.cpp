@@ -42,7 +42,7 @@ void Simulator::Initialize()
 	//sphere->drawMode = 2;
 
 	//sphere->init();
-	mySPH = new SPH(3000);	// the number of particles
+	mySPH = new SPH(6000);	// the number of particles
 	mySPH->iteration_n = 10;
 	mySPH->init();
 }
@@ -60,7 +60,7 @@ void Simulator::Update()
 		//printf("cloth particle : %d\n", cloth->particles.size());
 		mySPH->makeHashTable(cloth->particles);
 		mySPH->computeDensity();
-		mySPH->computeForce();
+		mySPH->computeForce(is_cleaning);
 		mySPH->integrate(timsStep, gravity_s);
 	}
 	for (int iter = 0; iter < cloth->iteration_n; iter++)

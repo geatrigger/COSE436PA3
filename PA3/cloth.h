@@ -33,6 +33,10 @@ public:
 
 	GLubyte checkImage[checkImageHeight][checkImageWidth][4];
 	GLuint texName;
+	int width_dirty, height_dirty, nrChannels_dirty;
+	unsigned char* data_dirty;
+	int width_clean, height_clean, nrChannels_clean;
+	unsigned char* data_clean;
 
 	mass_cloth()
 	{ 	 
@@ -80,17 +84,26 @@ public:
 			GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 			GL_NEAREST);
-		int width, height, nrChannels;
-		unsigned char* data = stbi_load("1.jpg", &width, &height, &nrChannels, 0);
-		if (data)
+		data_dirty = stbi_load("1.jpg", &width_dirty, &height_dirty, &nrChannels_dirty, 0);
+		if (data_dirty)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_dirty, height_dirty, 0, GL_RGB, GL_UNSIGNED_BYTE, data_dirty);
 		}
 		else
 		{
 			std::cout << "Failed to load texture" << std::endl;
 		}
-		stbi_image_free(data);
+		stbi_image_free(data_dirty);
+		data_clean = stbi_load("2.jpg", &width_clean, &height_clean, &nrChannels_clean, 0);
+		if (data_clean)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_clean, height_clean, 0, GL_RGB, GL_UNSIGNED_BYTE, data_clean);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		//stbi_image_free(data_clean);
 		//Node 배치
 		for (int i = 0; i < size_x; i++)
 		{
@@ -99,14 +112,24 @@ public:
 				for (int k = 0; k < size_z; k++)
 				{
 					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 10, (j - size_y / 2.0) * dy));
-					Particle* pp = new Particle(xp->getPosX(), xp->getPosY(), xp->getPosZ(), -1);
-					//pp->mass = 0.5;
-					xp->pp = pp;
-					particles.push_back(pp);
-					if ((j == 0 || j == size_y - 1) && (i == 0 || i == size_x - 1))
+					if (i % 2 == 0 && j % 2 == 0)
+					{
+						xp->hasParticle = true;
+						Particle* pp = new Particle(xp->getPosX(), xp->getPosY(), xp->getPosZ(), -1);
+						pp->mass = 3.5;
+						xp->pp = pp;
+						particles.push_back(pp);
+					}
+					else
+						xp->hasParticle = false;
+					if ((j == 0 || j == size_y - 1) && (i == 0))
 						xp->isFixed = true;
 					else
 						xp->isFixed = false;
+					/*if ((j == 0 || j == size_y - 1) && (i == 0 || i == size_x - 1))
+						xp->isFixed = true;
+					else
+						xp->isFixed = false;*/
 					xp->tex_num_x = i;
 					xp->tex_num_y = j;
 					xp->tex_num_z = k;
@@ -363,11 +386,14 @@ public:
 		{
 			nodes[i]->add_force(external_force);
 			//sph force
-			vec3 sph_force = nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity;
-			sph_force = sph_force/30;
-			//if(i == nodes.size() / 2)
-			//  printf("sph force : %lf, %lf, %lf\n", sph_force.getX(), sph_force.getY(), sph_force.getZ());
-			nodes[i]->add_force(sph_force);
+			if (nodes[i]->hasParticle)
+			{
+				vec3 sph_force = nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity;
+				sph_force = sph_force / 30;
+				//if(i == nodes.size() / 2)
+				//  printf("sph force : %lf, %lf, %lf\n", sph_force.getX(), sph_force.getY(), sph_force.getZ());
+				nodes[i]->add_force(sph_force);
+			}
 		}
 	}
 	
@@ -435,8 +461,11 @@ public:
 	{
 		for (int i = 0; i < nodes.size(); i++)
 		{
-			Particle* pp = nodes[i]->pp;
-			pp->position = vec3(nodes[i]->getPosX(), nodes[i]->getPosY(), nodes[i]->getPosZ());
+			if (nodes[i]->hasParticle)
+			{
+				Particle* pp = nodes[i]->pp;
+				pp->position = vec3(nodes[i]->getPosX(), nodes[i]->getPosY(), nodes[i]->getPosZ());
+			}
 		}
 	}
 

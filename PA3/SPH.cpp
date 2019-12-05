@@ -176,7 +176,7 @@ void SPH::computeDensity()
 	}
 }
 
-void SPH::computeForce() // Compute Pressure and Viscosity
+void SPH::computeForce(bool is_cleaning) // Compute Pressure and Viscosity
 {
 #pragma omp parallel for collapse(5)
 	for (int x = 0; x < GRIDSIZE; x++)
@@ -231,6 +231,17 @@ void SPH::computeForce() // Compute Pressure and Viscosity
 					/*Implements - Compute Pressure and Viscosity Forces 작성*/
 					pi->fpressure = -1.0 * pi->fpressure;
 					pi->fviscosity = mu * pi->fviscosity;
+					if (is_cleaning)
+					{
+						vec3 pi_to_o = (pi->position - vec3(0, 0, 0));
+						pi_to_o.y = 0;//x = 0, z = 0인 선과의 거리벡터
+						if (pi_to_o.length() < 3)
+							pi->fclean = (pi_to_o).Cross(vec3(0, 1, 0)) * 0.2; //원점에서 멀수록 힘을 세게 받음
+						else
+							pi->fclean = (pi_to_o).Cross(vec3(0, 1, 0)).normalize() * 3 * 0.2;
+					}
+					else
+						pi->fclean = vec3(0, 0, 0);
 					//printf("pi->fpressur : %lf, pi->fviscosity : %lf\n", pi->fpressure, pi->fviscosity);
 				}
 			}

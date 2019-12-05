@@ -72,7 +72,10 @@ void mass_cloth::draw()
 			glEnd();
 		}
 		for (int i = 0; i < nodes.size(); i++)
-			nodes[i]->pp->draw();
+		{
+			if(nodes[i]->hasParticle)
+			  nodes[i]->pp->draw();
+		}
 		glDisable(GL_TEXTURE_2D);
 		//Basic Implements 3-3. Draw Call for Cloth
 		//Additional Implements 4-3. Texture Coordinate Mapping

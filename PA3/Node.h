@@ -28,6 +28,7 @@ public:
 	vec3	acceleration;
 	vec3	normal;
 	bool	isFixed;
+	bool  hasParticle;
 
 	int tex_num_x;
 	int tex_num_y;

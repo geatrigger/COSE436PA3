@@ -176,6 +176,10 @@ void Viewer::Keyboard(unsigned char key, int x, int y)
 		if (S_Simulator.numerical_method > 1)
 			S_Simulator.numerical_method = 0;
 		break;
+	case'c':
+	case'C':
+		S_Simulator.is_cleaning = !S_Simulator.is_cleaning;
+		break;
 	}
 	glutPostRedisplay();
 }

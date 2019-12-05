@@ -37,5 +37,6 @@ public:
 	double timsStep;
 	int					  numerical_method;
 	vec3          external_force;
+	bool          is_cleaning;
 };
 
