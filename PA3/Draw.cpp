@@ -133,8 +133,9 @@ void Particle::draw()
 	glEnable(GL_POINT_SMOOTH);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE);
 	glBegin(GL_POINTS);
-	glColor4f(0.5f, 0.5f, 1.0f, 0.3f);
+	glColor4f(0.3f, 0.7f, 0.9f, 0.2f);
 	glNormal3f(normal.x, normal.y, normal.z);
 	glVertex3f(getPosX(), getPosY(), getPosZ());
 	glEnd();
