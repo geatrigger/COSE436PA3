@@ -54,18 +54,27 @@ void mass_cloth::draw()
 		
 		for (int i = 0; i < faces.size(); i += 3)
 		{
+			float clean_x[3];
+			for (int j = 0; j < 3; j++)
+			{
+				clean_x[j] = 0;
+				if (faces[i+j]->isCleaned)
+				{
+					clean_x[j] = 0.5f;
+				}
+			}
 			glBegin(GL_TRIANGLES);
 			//glColor4f(0.8f, 0.6f, 1.0f, 1.0f);
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-			glTexCoord2f(faces[i]->tex_num_x / (float)size_x, faces[i]->tex_num_y / (float)size_y);
+			glTexCoord2f(faces[i]->tex_num_x / (float)size_x / 2.0f + clean_x[0], faces[i]->tex_num_y / (float)size_y);
 			glNormal3f(faces[i]->normal.x, faces[i]->normal.y, faces[i]->normal.z);
 			glVertex3f(faces[i]->position.x, faces[i]->position.y, faces[i]->position.z);
 			
-			glTexCoord2f(faces[i + 1]->tex_num_x / (float)size_x, faces[i + 1]->tex_num_y / (float)size_y);
+			glTexCoord2f(faces[i + 1]->tex_num_x / (float)size_x / 2.0f + clean_x[1], faces[i + 1]->tex_num_y / (float)size_y);
 			glNormal3f(faces[i + 1]->normal.x, faces[i + 1]->normal.y, faces[i + 1]->normal.z);
 			glVertex3f(faces[i + 1]->position.x, faces[i + 1]->position.y, faces[i + 1]->position.z);
 			
-			glTexCoord2f(faces[i + 2]->tex_num_x / (float)size_x, faces[i + 2]->tex_num_y / (float)size_y);
+			glTexCoord2f(faces[i + 2]->tex_num_x / (float)size_x / 2.0f + clean_x[2], faces[i + 2]->tex_num_y / (float)size_y);
 			glNormal3f(faces[i + 2]->normal.x, faces[i + 2]->normal.y, faces[i + 2]->normal.z);
 			glVertex3f(faces[i + 2]->position.x, faces[i + 2]->position.y, faces[i + 2]->position.z);
 			

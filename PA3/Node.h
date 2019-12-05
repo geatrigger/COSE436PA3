@@ -29,6 +29,7 @@ public:
 	vec3	normal;
 	bool	isFixed;
 	bool  hasParticle;
+	bool  isCleaned;
 
 	int tex_num_x;
 	int tex_num_y;

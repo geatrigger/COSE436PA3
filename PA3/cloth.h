@@ -35,8 +35,6 @@ public:
 	GLuint texName;
 	int width_dirty, height_dirty, nrChannels_dirty;
 	unsigned char* data_dirty;
-	int width_clean, height_clean, nrChannels_clean;
-	unsigned char* data_clean;
 
 	mass_cloth()
 	{ 	 
@@ -94,16 +92,6 @@ public:
 			std::cout << "Failed to load texture" << std::endl;
 		}
 		stbi_image_free(data_dirty);
-		data_clean = stbi_load("2.jpg", &width_clean, &height_clean, &nrChannels_clean, 0);
-		if (data_clean)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_clean, height_clean, 0, GL_RGB, GL_UNSIGNED_BYTE, data_clean);
-		}
-		else
-		{
-			std::cout << "Failed to load texture" << std::endl;
-		}
-		//stbi_image_free(data_clean);
 		//Node 배치
 		for (int i = 0; i < size_x; i++)
 		{
@@ -111,7 +99,7 @@ public:
 			{
 				for (int k = 0; k < size_z; k++)
 				{
-					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 10, (j - size_y / 2.0) * dy));
+					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 10, (j - size_y / 2.0) * dy - 5));
 					if (i % 2 == 0 && j % 2 == 0)
 					{
 						xp->hasParticle = true;
@@ -133,6 +121,8 @@ public:
 					xp->tex_num_x = i;
 					xp->tex_num_y = j;
 					xp->tex_num_z = k;
+					xp->isCleaned = false;
+					//xp->isCleaned = true;
 					nodes.push_back(xp);
 				}
 			}
@@ -390,6 +380,28 @@ public:
 			{
 				vec3 sph_force = nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity;
 				sph_force = sph_force / 30;
+				if (sph_force.length() > 5.0)
+				{
+					int x = i / (size_y * size_z);
+					int y = (i - x * size_y * size_z) / size_z;
+					int z = (i - x * size_y * size_z - y * size_z);
+					//x+1, x, x-1, y+1, y, y-1인 경우 모두 isClean = true
+					for (int xi = -size_y * size_z; xi <= size_y * size_z; xi += size_y * size_z)
+					{
+						if (x == 0 && xi == -size_y * size_z)
+							continue;
+						if (x == size_x - 1 && xi == size_y * size_z)
+							continue;
+						for (int yi = -size_z; yi <= size_z; yi += size_z)
+						{
+							if (y == 0 && yi == -size_z)
+								continue;
+							if (y == size_y - 1 && xi == size_z)
+								continue;
+							nodes[i + xi + yi]->isCleaned = true;
+						}
+					}
+				}
 				//if(i == nodes.size() / 2)
 				//  printf("sph force : %lf, %lf, %lf\n", sph_force.getX(), sph_force.getY(), sph_force.getZ());
 				nodes[i]->add_force(sph_force);
