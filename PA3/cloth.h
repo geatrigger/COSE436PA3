@@ -99,7 +99,7 @@ public:
 			{
 				for (int k = 0; k < size_z; k++)
 				{
-					Node* xp = new Node(vec3((i - size_x / 2.0) * dx, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 10, (j - size_y / 2.0) * dy - 5));
+					Node* xp = new Node(vec3((i - size_x / 2.0) * dx + 5, (k - size_z / 2.0) * dz + (size_y / 2.0) * dy - 10, (j - size_y / 2.0) * dy - 5));
 					if (i % 2 == 0 && j % 2 == 0)
 					{
 						xp->hasParticle = true;
@@ -378,9 +378,10 @@ public:
 			//sph force
 			if (nodes[i]->hasParticle)
 			{
-				vec3 sph_force = nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity;
-				sph_force = sph_force / 30;
-				if (sph_force.length() > 5.0)
+				//vec3 sph_force = nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity;
+				vec3 sph_force = nodes[i]->pp->fclean + (nodes[i]->pp->fpressure + nodes[i]->pp->fviscosity)/30;
+				sph_force = sph_force;
+				if (sph_force.length() > 3.5)
 				{
 					int x = i / (size_y * size_z);
 					int y = (i - x * size_y * size_z) / size_z;

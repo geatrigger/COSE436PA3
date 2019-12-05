@@ -46,14 +46,14 @@ void SPH::resetParticle()
 void SPH::init()
 {
 	resetParticle();
-	damBreaking();
+	//damBreaking();
 }
 
 void SPH::damBreaking()
 {
-	for (double z = 0.0; z < 2.0; z += 0.5) {
-		for (double y = -9.0; y < -2.0; y += 0.5) {
-			for (double x = 0.0; x < 2.0; x += 0.5) {
+	for (double z = -10.0; z < 10.0; z += 1.0) {
+		for (double y = -10.0; y < -8.0; y += 0.5) {
+			for (double x = -10.0; x < 10.0; x += 1.0) {
 				if (particles.size() < MaxParticle)
 				{
 					Particle* p = new Particle(x, y, z, index++);
@@ -69,21 +69,21 @@ void SPH::pouring(float dt)
 {
 	static float pouring_time = 0.0f;
 	pouring_time += dt;
-	if (pouring_time < 0.1f)
+	if (pouring_time < 0.2f)
 	{
 		return;
 	}
 	if (particles.size() >= MaxParticle)
 		return;
 
-	for (double z = -1.0; z < 0.0; z += 0.4) {
-		for (double y = 5.0; y < 6.0; y += 0.4) {
-			for (double x = -3.0; x < -3.0 + 2.0; x += 0.4) {
+	for (double z = 8.0; z < 9.0; z += 0.5) {
+		for (double y = -5.0; y < -4.0; y += 0.5) {
+			for (double x = 8.0; x < 8.0 + 1.0; x += 0.5) {
 				if (particles.size() < MaxParticle)
 				{
 					Particle* p = new Particle(x, y, z, index++);
-					p->velocity.x = 5.0f;
-					p->velocity.y = -2.0f;
+					p->velocity.x = 1.0f;
+					//p->velocity.y = -2.0f;
 					particles.push_back(p);
 					//printf("x : %lf, y : %lf, z : %lf, thread : %d\n", x, y, z, omp_get_thread_num());
 				}
@@ -206,7 +206,7 @@ void SPH::computeForce(bool is_cleaning) // Compute Pressure and Viscosity
 						{
 							// cloth particle과 sph particle이 너무 가까이 있으면 힘을 약하게 받음
 							// sph particle 끼리 가까이 있으면 힘 받음
-							double q_min = 0.5;
+							double q_min = 0.3;
 							if (pi->idx < 0 && pj->idx >= 0 && q > q_min ||
 								pi->idx >= 0 && pj->idx < 0 && q > q_min ||
 								pi->idx >= 0 && pj->idx >= 0)
@@ -236,9 +236,9 @@ void SPH::computeForce(bool is_cleaning) // Compute Pressure and Viscosity
 						vec3 pi_to_o = (pi->position - vec3(0, 0, 0));
 						pi_to_o.y = 0;//x = 0, z = 0인 선과의 거리벡터
 						if (pi_to_o.length() < 3)
-							pi->fclean = (pi_to_o).Cross(vec3(0, 1, 0)) * 0.2; //원점에서 멀수록 힘을 세게 받음
+							pi->fclean = (pi_to_o).Cross(vec3(0, 1, 0)) * 0.3; //원점에서 멀수록 힘을 세게 받음
 						else
-							pi->fclean = (pi_to_o).Cross(vec3(0, 1, 0)).normalize() * 3 * 0.2;
+							pi->fclean = (pi_to_o).Cross(vec3(0, 1, 0)).normalize() * 3 * 0.3;
 					}
 					else
 						pi->fclean = vec3(0, 0, 0);
@@ -340,4 +340,66 @@ vector<Particle *> SPH::getNeighbor(int gridx, int gridy, int gridz, double radi
 		}
 	}
 	return res;
+}
+
+void SPH::computeNormal()
+{
+#pragma omp parallel for collapse(5)
+	for (int x = 0; x < GRIDSIZE; x++)
+	{
+		for (int y = 0; y < GRIDSIZE; y++)
+		{
+			for (int z = 0; z < GRIDSIZE; z++)
+			{
+				vector<Particle*> ris;
+				vector<Particle*> rjs = getNeighbor(x, y, z, h, ris);
+				//printf("x : %d, y : %d, z : %d, thread : %d\n", x, y, z, omp_get_thread_num());
+
+				for (int i = 0; i < rjs.size(); i++)
+				{
+					Particle* pi = rjs[i];
+					pi->normal = vec3(0.0, 0.0, 0.0);
+					for (int j = i + 1; j < rjs.size(); j++)
+					{
+						Particle* pj = rjs[j];
+						vec3 rij = pi->position - pj->position;
+						double q = rij.length() / h;
+						if (0.0 <= q && q < 1.0)
+						{
+							pi->normal = pi->normal + rij;
+						}
+					}
+					// 모든 주변과의 벡터값을 구하고 평균내어 normal구함
+					if (pi->normal.length() < 0.01)
+						pi->normal = vec3(0.0, 1.0, 0.0);
+					else
+					  pi->normal = pi->normal.normalize();
+				}
+				// 각 파티클에 1.0 이내의 파티클들의 위치, normal을 등록함
+				for (int i = 0; i < rjs.size(); i++)
+				{
+					Particle* pi = rjs[i];
+					//printf("aaaa");
+					pi->neighbor_positions.clear();
+					//printf("bbbb");
+					pi->neighbor_normals.clear();
+					//printf("cccc");
+					for (int j = i + 1; j < rjs.size(); j++)
+					{
+						Particle* pj = rjs[j];
+						vec3 rij = pi->position - pj->position;
+						double q = rij.length() / h;
+						if (0.0 <= q && q < 1.0)
+						{
+							//pi->neighbor_positions.push_back(pj->position);
+							//pi->neighbor_normals.push_back(pj->normal);
+						}
+					}
+				}
+
+				//printf("computeNomal grid %d %d %d done\n", x, y, z);
+			}
+		}
+	}
+
 }

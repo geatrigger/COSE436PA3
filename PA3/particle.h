@@ -16,6 +16,9 @@ public:
 	vec3	fviscosity;
 	vec3	fclean; //cleaning force(È¸Àü·Â)
 	double  restitution;
+	vec3	normal;
+	std::vector<vec3> neighbor_positions;
+	std::vector<vec3> neighbor_normals;
 public:
 	Particle(void)
 	{
@@ -26,6 +29,7 @@ public:
 		velocity = vec3(0.0, 0.0, 0.0);
 		mass = 1.0;
 		restitution = 0.5;
+		normal = vec3(0.0, 1.0, 1.0);
 	}
 
 	Particle(double _x, double _y, double _z, int _idx) : position(_x, _y, _z), velocity(0.0, 0.0, 0.0), acceleration(0.0, 0.0, 0.0), mass(1.0)
@@ -36,6 +40,7 @@ public:
 		density = 0.0;
 		idx = _idx;
 		restitution = 0.5;
+		normal = vec3(0.0, 1.0, 1.0);
 	}
 	~Particle(void)
 	{

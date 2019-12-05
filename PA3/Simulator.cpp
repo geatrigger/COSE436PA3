@@ -43,7 +43,6 @@ void Simulator::Initialize()
 
 	//sphere->init();
 	mySPH = new SPH(6000);	// the number of particles
-	mySPH = new SPH(6000);	// the number of particles
 	mySPH->iteration_n = 10;
 	mySPH->init();
 }
@@ -72,6 +71,7 @@ void Simulator::Update()
 		cloth->set_particle_position();
 	}
 
+	mySPH->computeNormal();
 	cloth->computeNormal();
 }
  
@@ -96,7 +96,9 @@ void Simulator::Lighting()
 	float light_dir[] = { -1, -1, 0 , 0.0};
 	float light_ambient[] = { 0.3, 0.3, 0.3, 1.0 };
 	float light_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
-	float light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	//float light_diffuse[] = { 0.4, 0.4, 0.4, 1.0 };
+	//float light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	float light_specular[] = { 0.2, 0.2, 0.2, 1.0 };
 	float frontColor[] = { 0.8, 0.8, 0.8, 1 };
 
 	float matShininess = 20;

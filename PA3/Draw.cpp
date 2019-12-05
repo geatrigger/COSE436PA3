@@ -128,12 +128,29 @@ void Particle::draw()
 		glEnable(GL_LIGHTING);
 		return;
 	}
-	glDisable(GL_LIGHTING);
-	glColor3f(0.5f, 0.5f, 1.0f);
-	glPointSize(15.0f);
+	//glDisable(GL_LIGHTING);
+	glPointSize(25.0f);
 	glEnable(GL_POINT_SMOOTH);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBegin(GL_POINTS);
+	glColor4f(0.5f, 0.5f, 1.0f, 0.3f);
+	glNormal3f(normal.x, normal.y, normal.z);
 	glVertex3f(getPosX(), getPosY(), getPosZ());
 	glEnd();
-	glEnable(GL_LIGHTING);
+	int fake_particle_num = 1;
+	for (int i = 0; i < neighbor_positions.size(); i++)
+	{
+		for (int j = 1; j < fake_particle_num; j++)
+		{
+			glBegin(GL_POINTS);
+			glColor4f(0.5f, 0.5f, 1.0f, 0.3f);
+			glNormal3f((normal.x * j + neighbor_normals[i].x * (fake_particle_num - j)), (normal.y * j + neighbor_normals[i].y * (fake_particle_num - j)), (normal.z * j + neighbor_normals[i].z * (fake_particle_num - j)));
+			glVertex3f(getPosX() * j + neighbor_positions[i].x * (fake_particle_num - j), getPosY() * j + neighbor_positions[i].y * (fake_particle_num - j), getPosZ() * j + neighbor_positions[i].z * (fake_particle_num - j));
+			glEnd();
+		}
+
+	}
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_LIGHTING);
 }

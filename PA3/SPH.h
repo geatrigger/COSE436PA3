@@ -33,6 +33,7 @@ public:
 	void computeDensity();
 	void computeForce(bool is_cleaning);
 	void integrate(double dt, vec3 gravity);
+	void computeNormal();
 
 private:	//kernel functions for SPH
 	double	poly6Kernel(vec3 rij, double h);

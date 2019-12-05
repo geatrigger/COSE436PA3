@@ -61,6 +61,7 @@ int main(int argc, char ** argv)
 	glutInitWindowSize(1024, 800);
 	glutCreateWindow("3D SPH + Cloth Spring Simulation ");
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
 
 	Initialize();
 	glutTimerFunc(10, Update, 0);
