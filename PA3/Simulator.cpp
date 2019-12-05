@@ -19,8 +19,8 @@ void Simulator::Initialize()
 	ground =vec3(0.0,-10.0,0.0);
 	cloth = new mass_cloth();
 
-	cloth->dx = 0.3;
-	cloth->dy = 0.3;
+	cloth->dx = 0.2;
+	cloth->dy = 0.2;
 	cloth->dz = 1;
 	cloth->size_x = 50;
 	cloth->size_y = 50;
@@ -42,6 +42,7 @@ void Simulator::Initialize()
 	//sphere->drawMode = 2;
 
 	//sphere->init();
+	mySPH = new SPH(6000);	// the number of particles
 	mySPH = new SPH(6000);	// the number of particles
 	mySPH->iteration_n = 10;
 	mySPH->init();
